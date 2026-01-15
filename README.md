@@ -10,6 +10,8 @@ This is the source code repository for the PLAIground prototype implemented in P
 
 The key abstraction of PLAIground is the **Compoundable Model**—a computational unit that wraps an AI task and separates the high-level task specification (what needs to be done) from low-level execution details (which models perform the task, deployment, etc.).
 
+![PLAIground Compoundable Model Diagram](docs/images/CModel.png)
+
 It encapsulates three contracts that define its behavior and interface:
 
 - **Data Contract** - defines the input and output data structures required by the model to ensure type safety and seamless integration. By enforcing strict schemas (e.g., requiring an `image` byte stream input or a `bounding_box` list output) and validating data at runtime, it prevents integration errors when connecting heterogeneous models in a workflow.
