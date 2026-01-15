@@ -43,7 +43,7 @@ Workflows in PLAIground are implemented as directed graphs of Compoundable Model
 
 ##### Example Workflow Implementation
 
-```
+```python
 from v2.workflow import DeclarativeWorkflow, selector
 from v2.selector import AdaptiveSelector, SLOConstraints
 
