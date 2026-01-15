@@ -3,9 +3,9 @@ from typing import Dict, Any, Optional, List, TYPE_CHECKING
 from .capability import CapabilityRegistry
 
 if TYPE_CHECKING:
-    from ..contracts.data_contract import DataContract
-    from ..contracts.task_contract import TaskContract
-    from ..connectors.base import LLMConnector
+    from contracts.data_contract import DataContract
+    from contracts.task_contract import TaskContract
+    from connectors.base import LLMConnector
 
 
 @dataclass

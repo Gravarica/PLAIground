@@ -5,11 +5,11 @@ from typing import Dict, List, Optional, TYPE_CHECKING
 from threading import Lock
 
 from .model import CompoundableModel
-from ..connectors.pool import ConnectorPool
+from connectors.pool import ConnectorPool
 
 if TYPE_CHECKING:
-    from ..selector import Selector, Implementation
-    from ..config import ConfigLoader
+    from selector import Selector, Implementation
+    from config import ConfigLoader
 
 
 class CompoundableModelRegistry:

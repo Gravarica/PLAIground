@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 from typing import Dict, List
-from ..selector.base import Implementation
-from ..selector.profile import ModelProfile
+from selector.base import Implementation
+from selector.profile import ModelProfile
 
 
 def load_profiles(profile_path: str = None) -> Dict[str, List[Implementation]]:

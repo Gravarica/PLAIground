@@ -1,7 +1,7 @@
 from typing import List, Optional
 from .workflow import Workflow
 from .edge import Edge, DataMapping
-from ..core.model import CompoundableModel
+from core.model import CompoundableModel
 
 
 class WorkflowBuilder:

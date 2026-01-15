@@ -1,4 +1,4 @@
-profiles: data/benchmarks/arc_full_profiles.json
+profiles: PLAIground/data/profiles/arc_full_profiles.json
 
 tasks:
   classify_difficulty:

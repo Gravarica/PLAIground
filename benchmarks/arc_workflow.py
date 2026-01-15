@@ -1,8 +1,8 @@
 from typing import Dict, Any
-from ..core.decorator import compoundable_model
-from ..workflow import DeclarativeWorkflow, selector
-from ..selector import AdaptiveSelector, GreedySelector, SLOConstraints
-from ..selector.greedy import Strategy
+from core.decorator import compoundable_model
+from workflow import DeclarativeWorkflow, selector
+from selector import AdaptiveSelector, GreedySelector, SLOConstraints
+from selector.greedy import Strategy
 
 
 def create_arc_workflow(

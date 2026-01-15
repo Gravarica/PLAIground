@@ -6,11 +6,11 @@ from typing import Dict, Any, Optional, List, Type
 from dotenv import load_dotenv
 load_dotenv()
 
-from ..core.model import CompoundableModel
-from ..selector import Selector, SLOConstraints, AdaptiveSelector
-from ..selector.base import Implementation
-from ..config import load_implementations, ConfigLoader
-from ..connectors.pool import ConnectorPool
+from core.model import CompoundableModel
+from selector import Selector, SLOConstraints, AdaptiveSelector
+from selector.base import Implementation
+from config import load_implementations, ConfigLoader
+from connectors.pool import ConnectorPool
 
 
 class DeclarativeWorkflow:
@@ -96,7 +96,7 @@ class DeclarativeWorkflow:
 
     def _create_model(self, name: str, info: Dict[str, Any]) -> CompoundableModel:
         """Create CompoundableModel from method info."""
-        from ..contracts.task_contract import TaskContract
+        from contracts.task_contract import TaskContract
 
         task_contract = TaskContract.create(
             capability=info['capability'],

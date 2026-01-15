@@ -15,12 +15,22 @@ class LLMHandler(CapabilityHandler):
 
     def execute(self, connector: Any, model_id: str, config: Dict[str, Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
 
-        prompt_template = config.get("parameters", {}).get("prompt")
-        prompt = prompt_template.format(**input_data) if prompt_template else input_data.get("prompt", str(input_data))
+        prompt_template = config.get("prompt")
+
+        if prompt_template:
+            try:
+                prompt = prompt_template.format(**input_data)
+            except KeyError as e:
+                raise ValueError(f"Missing input key for prompt template: {e}")
+        else:
+            prompt = input_data.get("prompt", str(input_data))
+
+        exec_config = config.copy()
+        exec_config.pop("prompt", None)
 
         # Backward compatibility
         if hasattr(connector, 'generate'):
-            result = connector.generate(model_id, prompt, **config)
+            result = connector.generate(model_id, prompt, **exec_config)
             return {"output": result}
 
         return connector.execute({"prompt": prompt, **config})
@@ -48,11 +58,34 @@ class ObjectDetectionHandler(CapabilityHandler):
             "output": "detected" if has_detection else "none"
         }
 
+class CustomClassificationHandler(CapabilityHandler):
+    def execute(self, connector: Any, model_id: str, config: Dict[str, Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
+
+        prompt_template = config.get("prompt")
+        if prompt_template:
+            prompt = prompt_template.format(**input_data)
+        else:
+            prompt = input_data.get("prompt", str(input_data))
+
+        if hasattr(connector, 'classify'):
+            result = connector.classify(model_id, prompt, **config)
+        elif hasattr(connector, 'execute'):
+            result = connector.execute({"prompt": prompt, **config})
+        else:
+            output_text = connector.generate(model_id, prompt, **config)
+            result = {"output": output_text}
+
+        if "output" not in result:
+            result["output"] = result.get("label", str(result))
+
+        return result
+
 class CapabilityRegistry:
 
     _handlers: Dict[str, CapabilityHandler] = {
         "llm": LLMHandler(),
         "object_detection": ObjectDetectionHandler(),
+        "classification": CustomClassificationHandler(),
     }
 
     @classmethod

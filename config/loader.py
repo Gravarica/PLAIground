@@ -5,7 +5,7 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
-from ..selector import Implementation, ModelProfile, SLOConstraints
+from selector import Implementation, ModelProfile, SLOConstraints
 
 
 class ConfigLoader:

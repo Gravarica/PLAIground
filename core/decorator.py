@@ -2,8 +2,8 @@ from typing import Dict, Any, Optional, Callable, Union
 from functools import wraps
 import inspect
 
-from ..contracts.data_contract import DataContract, extract_contracts
-from ..contracts.task_contract import TaskContract
+from contracts.data_contract import DataContract, extract_contracts
+from contracts.task_contract import TaskContract
 from .model import CompoundableModel
 
 

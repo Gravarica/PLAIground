@@ -10,9 +10,9 @@ Run with:
 
 from typing import Dict, Any
 
-from v2.core.decorator import compoundable_model
-from v2.workflow import DeclarativeWorkflow, selector
-from v2.selector import AdaptiveSelector, SLOConstraints
+from core.decorator import compoundable_model
+from workflow import DeclarativeWorkflow, selector
+from selector import AdaptiveSelector, SLOConstraints
 
 
 @selector(

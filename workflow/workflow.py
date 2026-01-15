@@ -1,7 +1,7 @@
 import networkx as nx
 from typing import Dict, Any, List, Optional
 from .edge import Edge, DataMapping
-from ..core.model import CompoundableModel
+from core.model import CompoundableModel
 
 
 class Workflow:

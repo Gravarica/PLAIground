@@ -11,9 +11,10 @@ from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
 
 from datasets import load_dataset
+from tqdm import tqdm
 
 from .arc_workflow import create_arc_workflow
-from ..selector import SLOConstraints
+from selector import SLOConstraints
 
 
 @dataclass
@@ -112,7 +113,7 @@ def main():
     model_usage = {}
     solver_usage = {"simple_solver": {}, "complex_solver": {}}
 
-    for i, q in enumerate(data):
+    for i, q in enumerate(tqdm(data)):
         formatted = format_question(q)
 
         start = time.time()
