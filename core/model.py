@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, List, TYPE_CHECKING
+from .capability import CapabilityRegistry
 
 if TYPE_CHECKING:
     from ..contracts.data_contract import DataContract
@@ -49,7 +50,6 @@ class CompoundableModel:
         return "llm"
 
     def execute(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the compoundable model."""
 
         if not self.is_bound():
             raise RuntimeError(f"Model '{self.name}' not bound. Call registry.bind() first.")
@@ -59,51 +59,14 @@ class CompoundableModel:
             raise ValueError(f"Input validation failed for '{self.name}'")
 
         capability = self._get_capability()
+        handler = CapabilityRegistry.get_handler(capability)
 
-        if capability == "object_detection":
-            output = self._execute_object_detection(input_data)
-        else:
-            output = self._execute_llm(input_data)
+        task_config = self.task_contract.config.parameters if self.task_contract else {}
+        effective = {**task_config, **self._config}
+
+        output = handler.execute(self._connector, self._model_id, effective, input_data)
 
         if self.output_contract and not self.output_contract.validate(output):
             raise ValueError(f"Output validation failed for '{self.name}'")
 
         return output
-
-    def _execute_llm(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute LLM/classification models."""
-        prompt = self._format_prompt(input_data)
-        result = self._connector.generate(self._model_id, prompt, **self._config)
-        return {"output": result}
-
-    def _execute_object_detection(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute object detection models via generic connector.
-
-        The connector is infrastructure-agnostic - it just knows how to
-        talk to Triton/TorchServe/etc. Uses the translation pipeline.
-        """
-        # Set current model on connector (for translation pipeline)
-        self._connector._current_model = self._model_id
-
-        # Use detect() for backward compatibility (calls execute internally)
-        if hasattr(self._connector, 'detect'):
-            image = input_data.get("image", "")
-            detections = self._connector.detect(self._model_id, image, **self._config)
-            has_detection = len(detections) > 0
-            return {
-                "detections": detections,
-                "has_detection": has_detection,
-                "output": "detected" if has_detection else "none"
-            }
-        # Direct execute() call with new pipeline
-        elif hasattr(self._connector, 'execute'):
-            result = self._connector.execute(input_data)
-            detections = result.get("detections", [])
-            has_detection = result.get("has_detection", len(detections) > 0)
-            return {
-                "detections": detections,
-                "has_detection": has_detection,
-                "output": "detected" if has_detection else "none"
-            }
-        else:
-            raise RuntimeError(f"Connector does not support object detection")
