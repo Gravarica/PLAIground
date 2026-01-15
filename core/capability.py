@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
+from contracts.system_contract import SystemContract
+
+
 class HandlerError(Exception):
     pass
 
@@ -8,12 +11,12 @@ class HandlerError(Exception):
 class CapabilityHandler(ABC):
 
     @abstractmethod
-    def execute(self, connector: Any, model_id: str, config: Dict[str, Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def execute(self, system_contract: SystemContract, config: Dict[str, Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
         pass
 
 class LLMHandler(CapabilityHandler):
 
-    def execute(self, connector: Any, model_id: str, config: Dict[str, Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def execute(self, system_contract: SystemContract, config: Dict[str, Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
 
         prompt_template = config.get("prompt")
 
@@ -29,24 +32,27 @@ class LLMHandler(CapabilityHandler):
         exec_config.pop("prompt", None)
 
         # Backward compatibility
-        if hasattr(connector, 'generate'):
-            result = connector.generate(model_id, prompt, **exec_config)
+        if hasattr(system_contract.connector, 'generate'):
+            result = system_contract.connector.generate(system_contract.model_id, prompt, **exec_config)
             return {"output": result}
 
-        return connector.execute({"prompt": prompt, **config})
+        return system_contract.connector.execute({"prompt": prompt, **config})
 
 class ObjectDetectionHandler(CapabilityHandler):
 
-    def execute(self, connector: Any, model_id: str, config: Dict[str, Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def execute(self, system_contract: SystemContract, config: Dict[str, Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
 
         # This is specificity to certain connector implementations
+        connector = system_contract.connector
+
         if hasattr(connector, '_current_model'):
-            connector._current_model = model_id
+            connector._current_model = system_contract.model_id
 
         # Backward compatibility
         if hasattr(connector, 'detect'):
             image = input_data.get("image", "")
-            detections = connector.detect(model_id, image, **config)
+            config = system_contract.get_effective_config({})
+            detections = connector.detect(system_contract.model_id, image, **config)
         else:
             result = connector.execute(input_data)
             detections = result.get("detections", [])
@@ -59,7 +65,9 @@ class ObjectDetectionHandler(CapabilityHandler):
         }
 
 class CustomClassificationHandler(CapabilityHandler):
-    def execute(self, connector: Any, model_id: str, config: Dict[str, Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def execute(self, system_contract: SystemContract, config: Dict[str, Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
+
+        connector = system_contract.connector
 
         prompt_template = config.get("prompt")
         if prompt_template:
@@ -68,11 +76,11 @@ class CustomClassificationHandler(CapabilityHandler):
             prompt = input_data.get("prompt", str(input_data))
 
         if hasattr(connector, 'classify'):
-            result = connector.classify(model_id, prompt, **config)
+            result = connector.classify(system_contract.model_id, prompt, **config)
         elif hasattr(connector, 'execute'):
             result = connector.execute({"prompt": prompt, **config})
         else:
-            output_text = connector.generate(model_id, prompt, **config)
+            output_text = connector.generate(system_contract.model_id, prompt, **config)
             result = {"output": output_text}
 
         if "output" not in result:

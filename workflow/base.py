@@ -143,15 +143,23 @@ class DeclarativeWorkflow:
         if model is None:
             raise RuntimeError(f"Model '{name}' not found in workflow")
 
-        if not model.is_bound():
-            raise RuntimeError(f"Model '{name}' not bound")
+        current_model_id = model.system_contract.model_id if model.system_contract else None
 
         # Check current selection vs bound model
         impl = self._selector.get_current(name)
 
-        if impl and model._model_id != impl.model:
-            connector = ConnectorPool.get(impl.provider)
-            model.bind(connector, impl.model)
+        if impl and current_model_id != impl.model:
+            connection_config = {}
+            if impl.endpoint:
+                connection_config['endpoint'] = impl.endpoint
+
+            connection_config.update(impl.config)
+            connector = ConnectorPool.get(impl.provider, **connection_config)
+
+            model.bind(connector, impl.model, **impl.config)
+
+        if not model.is_bound():
+            raise RuntimeError(f"Model '{name}' not bound")
 
         # Execute with timing
         start = time.time()

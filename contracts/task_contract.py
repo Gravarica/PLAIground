@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, Any
+from typing import Dict, Any, Union, TypedDict, Optional
 from enum import Enum
 
 
@@ -12,13 +12,21 @@ class Capability(Enum):
     SPEECH_TO_TEXT = "speech_to_text"
     TOOL = "tool"
 
+class PromptConfig(TypedDict, total=False):
+    prompt: str
+    temperature: Optional[float]
+    max_tokens: Optional[int]
+
+class ParameterConfig(TypedDict):
+    labels: Optional[list]
+    threshold: Optional[float]
 
 @dataclass
 class TaskConfig:
     """Task-specific configuration."""
 
     task_type: str
-    parameters: Dict[str, Any] = field(default_factory=dict)
+    parameters: Union[PromptConfig, ParameterConfig, Dict[str, Any]] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, config: Dict[str, Any]) -> 'TaskConfig':
