@@ -6,7 +6,7 @@ Can serve ANY model deployed on Triton.
 
 from typing import Dict, Any, List, Optional
 
-from .base import ObjectDetectionConnector, TransportError
+from .base import ObjectDetectionConnector, InvocationError
 
 # Graceful import - don't fail if tritonclient not installed
 TRITON_AVAILABLE = False
@@ -115,7 +115,7 @@ class TritonConnector(ObjectDetectionConnector):
 
         return inputs
 
-    def _transport(self, payload: Any) -> Any:
+    def _invoke(self, payload: Any) -> Any:
         """Send tensors to Triton and receive response.
 
         Handles mock mode when Triton is unavailable.
@@ -133,7 +133,7 @@ class TritonConnector(ObjectDetectionConnector):
             )
             return response
         except Exception as e:
-            raise TransportError(f"Triton inference failed: {e}") from e
+            raise InvocationError(f"Triton inference failed: {e}") from e
 
     def _translate_output(self, response: Any) -> Dict[str, Any]:
         """Convert Triton response to standard output dict.

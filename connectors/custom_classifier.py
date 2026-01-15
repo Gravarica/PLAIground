@@ -133,7 +133,7 @@ class CustomClassifierConnector(LLMConnector):
             "use_fallback": False
         }
 
-    def _transport(self, payload: Dict[str, Any]) -> Any:
+    def _invoke(self, payload: Dict[str, Any]) -> Any:
         """Run model inference.
 
         Handles fallback mode when model unavailable.

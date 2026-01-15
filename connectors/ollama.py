@@ -3,7 +3,7 @@
 import os
 from typing import Optional, Dict, Any
 
-from .base import LLMConnector, TransportError
+from .base import LLMConnector, InvocationError
 
 try:
     import requests
@@ -51,7 +51,7 @@ class OllamaConnector(LLMConnector):
             }
         }
 
-    def _transport(self, payload: Dict[str, Any]) -> Any:
+    def _invoke(self, payload: Dict[str, Any]) -> Any:
         """Call Ollama HTTP API.
 
         Handles mock mode when Ollama is unavailable.
@@ -68,7 +68,7 @@ class OllamaConnector(LLMConnector):
             response.raise_for_status()
             return response.json()
         except Exception as e:
-            raise TransportError(f"Ollama API call failed: {e}") from e
+            raise InvocationError(f"Ollama API call failed: {e}") from e
 
     def _translate_output(self, response: Any) -> Dict[str, Any]:
         """Convert Ollama response to standard output format.

@@ -11,7 +11,7 @@ class ConnectorError(Exception):
     pass
 
 
-class TransportError(ConnectorError):
+class InvocationError(ConnectorError):
     """Error during backend communication."""
     pass
 
@@ -49,7 +49,7 @@ class BackendConnector(ABC, Generic[InputT, OutputT]):
 
             if self._verbose:
                 print(f"    [connector:{connector_name}] step 2: _transport")
-            response = self._transport(payload)
+            response = self._invoke(payload)
 
             if self._verbose:
                 print(f"    [connector:{connector_name}] step 3: _translate_output")
@@ -76,7 +76,7 @@ class BackendConnector(ABC, Generic[InputT, OutputT]):
         pass
 
     @abstractmethod
-    def _transport(self, payload: Any) -> Any:
+    def _invoke(self, payload: Any) -> Any:
         """Send payload to backend and receive response.
 
         Handles authentication, retries, and network errors.

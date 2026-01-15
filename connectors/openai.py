@@ -3,7 +3,7 @@
 import os
 from typing import Optional, Dict, Any
 
-from .base import LLMConnector, TransportError
+from .base import LLMConnector, InvocationError
 
 try:
     from openai import OpenAI
@@ -46,7 +46,7 @@ class OpenAIConnector(LLMConnector):
             "max_tokens": data.get("max_tokens", 1000),
         }
 
-    def _transport(self, payload: Dict[str, Any]) -> Any:
+    def _invoke(self, payload: Dict[str, Any]) -> Any:
         """Call OpenAI API.
 
         Handles mock mode for testing without API key.
@@ -59,7 +59,7 @@ class OpenAIConnector(LLMConnector):
         try:
             return self.client.chat.completions.create(**payload)
         except Exception as e:
-            raise TransportError(f"OpenAI API call failed: {e}") from e
+            raise InvocationError(f"OpenAI API call failed: {e}") from e
 
     def _translate_output(self, response: Any) -> Dict[str, Any]:
         """Convert OpenAI response to standard output format.

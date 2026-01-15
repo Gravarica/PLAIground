@@ -3,7 +3,7 @@
 import os
 from typing import Optional, Dict, Any
 
-from .base import LLMConnector, TransportError
+from .base import LLMConnector, InvocationError
 
 try:
     import anthropic
@@ -44,7 +44,7 @@ class ClaudeConnector(LLMConnector):
             "max_tokens": data.get("max_tokens", 1000),
         }
 
-    def _transport(self, payload: Dict[str, Any]) -> Any:
+    def _invoke(self, payload: Dict[str, Any]) -> Any:
         """Call Claude API.
 
         Handles mock mode for testing without API key.
@@ -56,7 +56,7 @@ class ClaudeConnector(LLMConnector):
         try:
             return self.client.messages.create(**payload)
         except Exception as e:
-            raise TransportError(f"Claude API call failed: {e}") from e
+            raise InvocationError(f"Claude API call failed: {e}") from e
 
     def _translate_output(self, response: Any) -> Dict[str, Any]:
         """Convert Claude response to standard output format.

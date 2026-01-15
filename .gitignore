@@ -212,3 +212,4 @@ results/
 *.json
 !data/**/*.json
 .DS_Store
+.idea

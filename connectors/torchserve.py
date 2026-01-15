@@ -7,7 +7,7 @@ Can serve ANY model deployed on TorchServe.
 import random
 from typing import Dict, Any, Optional, Tuple
 
-from .base import ObjectDetectionConnector, TransportError
+from .base import ObjectDetectionConnector, InvocationError
 
 # Graceful import
 REQUESTS_AVAILABLE = False
@@ -93,7 +93,7 @@ class TorchServeConnector(ObjectDetectionConnector):
         # Default to JSON
         return (data, {"Content-Type": "application/json"})
 
-    def _transport(self, payload: Tuple[Any, Dict[str, str]]) -> Any:
+    def _invoke(self, payload: Tuple[Any, Dict[str, str]]) -> Any:
         """Send HTTP request to TorchServe.
 
         Handles mock mode when TorchServe unavailable.
@@ -118,7 +118,7 @@ class TorchServeConnector(ObjectDetectionConnector):
             response.raise_for_status()
             return response.json()
         except Exception as e:
-            raise TransportError(f"TorchServe request failed: {e}") from e
+            raise InvocationError(f"TorchServe request failed: {e}") from e
 
     def _translate_output(self, response: Any) -> Dict[str, Any]:
         """Convert TorchServe response to standard output dict.
